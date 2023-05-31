@@ -1,0 +1,69 @@
+% Definición de parámetros
+h = 0.01;                  % Tamaño del paso de la cuadrícula
+NMAX = 50;                % Número de términos en la serie de Fourier
+
+% Escenarios - [x, y, a, b, vo]
+scenarios = [
+    0.25, 0.25, 1, 2, 100;
+    0.25, 0.50, 1, 2, 100;
+    0.25, 0.75, 1, 2, 100;
+    0.50, 0.25, 1, 2, 100;
+    0.50, 0.50, 1, 2, 100;
+    0.50, 0.75, 1, 2, 100;
+    0.75, 0.25, 1, 2, 100;
+    0.75, 0.50, 1, 2, 100;
+    0.75, 0.75, 1, 2, 100;
+];
+
+% Bucle a través de los escenarios
+for s = 1:size(scenarios, 1)
+    x = scenarios(s, 1);
+    y = scenarios(s, 2);
+    a = scenarios(s, 3);
+    b = scenarios(s, 4);
+    vo = scenarios(s, 5);
+    c = 4 * vo / pi;           % Constante utilizada en la suma de la serie de Fourier
+
+    % Iniciar el valor del potencial
+    V = 0;
+
+    % Calcular el potencial en el punto (x, y)
+    for n = 1:2:NMAX
+        a1 = sin(n * pi * x / b);
+        a2 = sinh(n * pi * y / b);
+        a3 = n * sinh(n * pi * a / b);
+        V = V + c * a1 * a2 / a3;
+    end
+
+    % Mostrar el valor del potencial
+    fprintf('El potencial en el punto (x = %.2f, y = %.2f) para el escenario %d es V = %.2f\n', x, y, s, V);
+end
+
+% Escenario para la visualización
+a = scenarios(1, 3);
+b = scenarios(1, 4);
+vo = scenarios(1, 5);
+c = 4 * vo / pi;           % Constante utilizada en la suma de la serie de Fourier
+
+% Generar la cuadrícula
+[x, y] = meshgrid(0:h:a, 0:h:b); % Generar una cuadrícula de puntos
+
+% Iniciar la matriz de potencial
+V = zeros(size(x));
+
+% Bucle a través de la cuadrícula
+for n = 1:2:NMAX
+    % Calcular el término n de la serie de Fourier en todos los puntos de una vez
+    a1 = sin(n * pi * x / b);
+    a2 = sinh(n * pi * y / b);
+    a3 = n * sinh(n * pi * a / b);
+    V = V + c * a1 .* a2 ./ a3;
+end
+
+% Visualizar el potencial
+surf(x, y, V, 'EdgeColor', 'none');
+colorbar;
+xlabel('x');
+ylabel('y');
+zlabel('V');
+title('Potencial eléctrico');
